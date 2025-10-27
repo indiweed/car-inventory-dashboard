@@ -33,16 +33,6 @@
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
-.sidebar-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 100vh;
-  width: 100vw;
-  z-index: 1000;
-  background: rgba(0, 0, 0, 0.5);
-}
-
 .sidebar {
   position: fixed;
   top: 0;
@@ -52,7 +42,7 @@
   overflow-y: auto;
   background: white;
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-  z-index: 1001;
+  z-index: 1000;
   padding: 20px;
 }
 
@@ -60,3 +50,10 @@
   height: 100%;
   width: 100%;
 }
+
+.vehicle-tools {
+  display: flex;
+  position: absolute;
+  right: 0;
+}
+

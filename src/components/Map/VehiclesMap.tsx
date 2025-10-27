@@ -9,7 +9,7 @@ interface VehiclesMapProps {
 function VehiclesMap({ vehicles }: VehiclesMapProps) {
   const center = vehicles.length > 0 
     ? [vehicles[0].latitude, vehicles[0].longitude] 
-    : [55.753332, 37.621676];
+    : [59.932872, 30.347827];
 
   return (
     <MapContainer 
