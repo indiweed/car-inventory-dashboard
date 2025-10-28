@@ -51,6 +51,5 @@
   "devDependencies": {
     "@types/bootstrap": "^5.2.10",
     "@types/leaflet": "^1.9.21"
-  },
-  "homepage": "."
+  }
 }
