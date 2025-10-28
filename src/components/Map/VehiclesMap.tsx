@@ -14,8 +14,7 @@ function VehiclesMap({ vehicles }: VehiclesMapProps) {
   return (
     <MapContainer 
       center={center as [number, number]} 
-      zoom={13} 
-      style={{ height: '100%', width: '100%' }}
+      zoom={13}
       scrollWheelZoom={true}
     >
       <TileLayer

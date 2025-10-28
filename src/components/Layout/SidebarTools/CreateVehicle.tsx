@@ -11,7 +11,7 @@ export default function CreateVehicle() {
         onClick={() => setShowModal(true)}
       >
         <i className="bi bi-plus-circle me-2"></i>
-        Новый автомобиль
+        Добавить авто
       </button>
 
       <div 
@@ -22,7 +22,7 @@ export default function CreateVehicle() {
         <div className="modal-dialog">
           <div className="modal-content">
             <div className="modal-header">
-              <h1 className="modal-title fs-5">Создание автомобиля</h1>
+              <h1 className="modal-title fs-5">Добавление автомобиля</h1>
               <button 
                 type="button" 
                 className="btn-close" 

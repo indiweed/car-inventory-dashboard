@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Vehicle } from './types/vehicle';
 import { fetchVehicles } from './services/fetchVehicles';
+import { getSearchVehicles } from './services/getSearchVehicles';
 import Sidebar from './components/Layout/Sidebar';
 import VehiclesMap from './components/Map/VehiclesMap';
-import CreateVehicle from './components/Layout/SidebarTools/CreateVehicle';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import 'leaflet/dist/leaflet.css';
@@ -11,6 +11,8 @@ import './App.css';
 
 export default function App() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [searchableVehicles, setSearchableVehicles] = useState<Vehicle[]>(vehicles);
+  const [searchMessage, setSearchMessage] = useState('');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -32,6 +34,46 @@ export default function App() {
 
     loadVehicles();
   }, []);
+
+  useEffect(() => {
+    setSearchableVehicles(vehicles);
+  }, [vehicles]);
+
+  const handleSearch = (searchQuery: string) => {
+    const searchVehicles = getSearchVehicles(vehicles, searchQuery);
+    
+    if (searchVehicles.length === 0 && searchQuery) {
+      setSearchMessage(`Не найдено автомобилей по запросу "${searchQuery}"`);
+    } else {
+      setSearchMessage('');
+    }
+    
+    setSearchableVehicles(searchVehicles);
+  };
+
+  const handleFilters = (
+    filters: {
+      year: string[],
+      minPrice: string,
+      maxPrice: string
+    }
+  ) => {
+    let filtered = vehicles
+
+    if (filters.year.length > 0) {
+      filtered = filtered.filter(vehicle =>filters.year.includes(vehicle.year.toString()))
+    }
+
+    if (filters.minPrice) {
+      filtered = filtered.filter(vehicle => vehicle.price >= parseInt(filters.minPrice))
+    }
+
+    if (filters.maxPrice) {
+      filtered = filtered.filter(vehicle => vehicle.price <= parseInt(filters.maxPrice))
+    }
+
+    setSearchableVehicles(filtered)
+  }
 
   if (loading) {
     return (
@@ -74,7 +116,10 @@ export default function App() {
       <Sidebar 
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
-        vehicles={vehicles}
+        vehicles={searchableVehicles}
+        onSearch={handleSearch}
+        onFilter={handleFilters}
+        searchMessage={searchMessage}
       />
 
       <div className="map-container">

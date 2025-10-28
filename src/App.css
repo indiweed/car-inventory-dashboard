@@ -57,3 +57,11 @@
   right: 0;
 }
 
+.sidebar-filter, .sidebar-search, .sidebar-filter:hover, .sidebar-search:hover {
+  border: 1px solid #dee2e6;
+}
+
+.years-checkboxes {
+  max-height: 120px;
+  overflow-y: auto;
+}
