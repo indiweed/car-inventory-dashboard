@@ -62,6 +62,17 @@
 }
 
 .years-checkboxes {
-  max-height: 120px;
+  max-height: 80px;
   overflow-y: auto;
+}
+
+.sidebar-close-btn {
+  cursor: pointer;
+}
+
+.toast {
+  bottom: 20px;
+  left: 20px;
+  z-index: 9999;
+  min-width: 300px;
 }

@@ -1,7 +1,43 @@
 import { useState } from 'react';
+import { Vehicle } from '../../../types/vehicle';
 
-export default function EditVehicle() {
+interface EditVehicleProps {
+  vehicle: Vehicle;
+  onEdit: (updatedVehicle: Vehicle) => void;
+}
+
+export default function EditVehicle({ vehicle, onEdit }: EditVehicleProps) {
   const [showModal, setShowModal] = useState(false);
+  const [vehicleName, setVehicleName] = useState(vehicle.name);
+  const [vehiclePrice, setVehiclePrice] = useState(vehicle.price);
+  const [error, setError] = useState('');
+
+  const handleSave = () => {
+    if (!vehicleName.trim()) {
+      setError('Введите марку автомобиля');
+      return;
+    }
+    if (vehiclePrice <= 0) {
+      setError('Цена должна быть больше 0');
+      return;
+    }
+
+    const updatedVehicle: Vehicle = {
+      ...vehicle,
+      name: vehicleName.trim(),
+      price: vehiclePrice
+    };
+
+    onEdit(updatedVehicle);
+    setShowModal(false);
+  };
+
+  const handleClose = () => {
+    setShowModal(false);
+    setVehicleName(vehicle.name);
+    setVehiclePrice(vehicle.price);
+    setError('');
+  };
 
   return (
     <>
@@ -16,7 +52,6 @@ export default function EditVehicle() {
       <div 
         className={`modal fade ${showModal ? 'show' : ''}`} 
         style={{ display: showModal ? 'block' : 'none' }}
-        id="editVehicleModal"
       >
         <div className="modal-dialog">
           <div className="modal-content">
@@ -25,18 +60,39 @@ export default function EditVehicle() {
               <button 
                 type="button" 
                 className="btn-close" 
-                onClick={() => setShowModal(false)}
+                onClick={handleClose}
               ></button>
             </div>
             <div className="modal-body">
-              <form>
+              {error && (
+                <div className="alert alert-danger">
+                  {error}
+                </div>
+              )}
+              <form onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
                 <div className="mb-3">
                   <label htmlFor="vehicleNameEdit" className="col-form-label">Марка</label>
-                  <input type="text" className="form-control" id="vehicleNameEdit" placeholder='Марка автомобиля'/>
+                  <input 
+                    type="text" 
+                    className="form-control" 
+                    id="vehicleNameEdit" 
+                    value={vehicleName} 
+                    onChange={(e) => setVehicleName(e.target.value)} 
+                    placeholder='Марка автомобиля'
+                    required
+                  />
                 </div>
                 <div className="mb-3">
                   <label htmlFor="vehiclePriceEdit" className="col-form-label">Цена</label>
-                  <input type="text" className="form-control" id="vehiclePriceEdit" placeholder='Стоимость автомобиля'/>
+                  <input 
+                    type="text" 
+                    className="form-control" 
+                    id="vehiclePriceEdit" 
+                    value={vehiclePrice} 
+                    onChange={(e) => setVehiclePrice(Number(e.target.value))} 
+                    placeholder='Стоимость автомобиля'
+                    required
+                  />
                 </div>
               </form>
             </div>
@@ -44,11 +100,17 @@ export default function EditVehicle() {
               <button 
                 type="button" 
                 className="btn btn-secondary" 
-                onClick={() => setShowModal(false)}
+                onClick={handleClose}
               >
                 Отмена
               </button>
-              <button type="button" className="btn btn-primary">Сохранить</button>
+              <button 
+                type="button" 
+                className="btn btn-primary"
+                onClick={handleSave}
+              >
+                Сохранить
+              </button>
             </div>
           </div>
         </div>

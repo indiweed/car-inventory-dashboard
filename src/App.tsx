@@ -12,7 +12,7 @@ import './App.css';
 export default function App() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [searchableVehicles, setSearchableVehicles] = useState<Vehicle[]>(vehicles);
-  const [searchMessage, setSearchMessage] = useState('');
+  const [infoMessage, setInfoMessage] = useState('')
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -43,9 +43,9 @@ export default function App() {
     const searchVehicles = getSearchVehicles(vehicles, searchQuery);
     
     if (searchVehicles.length === 0 && searchQuery) {
-      setSearchMessage(`Не найдено автомобилей по запросу "${searchQuery}"`);
+      setInfoMessage(`Не найдено автомобилей по запросу "${searchQuery}"`);
     } else {
-      setSearchMessage('');
+      setInfoMessage('');
     }
     
     setSearchableVehicles(searchVehicles);
@@ -61,7 +61,7 @@ export default function App() {
     let filtered = vehicles
 
     if (filters.year.length > 0) {
-      filtered = filtered.filter(vehicle =>filters.year.includes(vehicle.year.toString()))
+      filtered = filtered.filter(vehicle => filters.year.includes(vehicle.year.toString()))
     }
 
     if (filters.minPrice) {
@@ -72,7 +72,35 @@ export default function App() {
       filtered = filtered.filter(vehicle => vehicle.price <= parseInt(filters.maxPrice))
     }
 
+    if (filtered.length === 0) {
+      setInfoMessage('По текущим параметрам ничего не найдено')
+    } else {
+      setInfoMessage('');
+    }
+
     setSearchableVehicles(filtered)
+  }
+
+  const handleCreate = (newVehicle: Vehicle) => {
+    setVehicles(prev => [...prev, newVehicle]);
+    setInfoMessage('Автомобиль успешно создан');
+    setTimeout(() => setInfoMessage(''), 3000);
+  };
+
+  const handleEdit = (updatedVehicle: Vehicle) => {
+    setVehicles(prev => prev.map(vehicle => 
+      vehicle.id === updatedVehicle.id ? updatedVehicle : vehicle
+    ));
+    setInfoMessage('Автомобиль успешно обновлен');
+    setTimeout(() => setInfoMessage(''), 3000);
+  };
+
+  const clearMessage = () => {
+    setInfoMessage('');
+  };
+
+  const deleteVehicle = (vehicle: Vehicle) => {
+    setVehicles(prev => prev.filter(v => v.id !== vehicle.id));
   }
 
   if (loading) {
@@ -119,7 +147,11 @@ export default function App() {
         vehicles={searchableVehicles}
         onSearch={handleSearch}
         onFilter={handleFilters}
-        searchMessage={searchMessage}
+        onCreate={handleCreate}
+        onEdit={handleEdit}
+        onDelete={deleteVehicle}
+        infoMessage={infoMessage}
+        onClearMessage={clearMessage}
       />
 
       <div className="map-container">
