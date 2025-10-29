@@ -1,107 +1,25 @@
-import { useState, useEffect } from 'react';
-import { Vehicle } from './types/vehicle';
-import { fetchVehicles } from './services/fetchVehicles';
-import { getSearchVehicles } from './services/getSearchVehicles';
+import { useState } from 'react';
 import Sidebar from './components/Layout/Sidebar';
 import VehiclesMap from './components/Map/VehiclesMap';
+import { useVehicles } from './hooks/useVehicles';
+import { useVehicleActions } from './hooks/useVehicleActions';
+import { useVehicleSearch } from './hooks/useVehicleSearch';
+import { useSidebar } from './hooks/useSidebar';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import 'leaflet/dist/leaflet.css';
 import './App.css';
 
 export default function App() {
-  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
-  const [searchableVehicles, setSearchableVehicles] = useState<Vehicle[]>(vehicles);
-  const [infoMessage, setInfoMessage] = useState('')
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const loadVehicles = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const data = await fetchVehicles();
-        setVehicles(data);
-      } catch (err) {
-        console.error('Ошибка при загрузке:', err);
-        setError(err instanceof Error ? err.message : 'Неизвестная ошибка');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadVehicles();
-  }, []);
-
-  useEffect(() => {
-    setSearchableVehicles(vehicles);
-  }, [vehicles]);
-
-  const handleSearch = (searchQuery: string) => {
-    const searchVehicles = getSearchVehicles(vehicles, searchQuery);
-    
-    if (searchVehicles.length === 0 && searchQuery) {
-      setInfoMessage(`Не найдено автомобилей по запросу "${searchQuery}"`);
-    } else {
-      setInfoMessage('');
-    }
-    
-    setSearchableVehicles(searchVehicles);
-  };
-
-  const handleFilters = (
-    filters: {
-      year: string[],
-      minPrice: string,
-      maxPrice: string
-    }
-  ) => {
-    let filtered = vehicles
-
-    if (filters.year.length > 0) {
-      filtered = filtered.filter(vehicle => filters.year.includes(vehicle.year.toString()))
-    }
-
-    if (filters.minPrice) {
-      filtered = filtered.filter(vehicle => vehicle.price >= parseInt(filters.minPrice))
-    }
-
-    if (filters.maxPrice) {
-      filtered = filtered.filter(vehicle => vehicle.price <= parseInt(filters.maxPrice))
-    }
-
-    if (filtered.length === 0) {
-      setInfoMessage('По текущим параметрам ничего не найдено')
-    } else {
-      setInfoMessage('');
-    }
-
-    setSearchableVehicles(filtered)
-  }
-
-  const handleCreate = (newVehicle: Vehicle) => {
-    setVehicles(prev => [...prev, newVehicle]);
-    setInfoMessage('Автомобиль успешно создан');
-    setTimeout(() => setInfoMessage(''), 3000);
-  };
-
-  const handleEdit = (updatedVehicle: Vehicle) => {
-    setVehicles(prev => prev.map(vehicle => 
-      vehicle.id === updatedVehicle.id ? updatedVehicle : vehicle
-    ));
-    setInfoMessage('Автомобиль успешно обновлен');
-    setTimeout(() => setInfoMessage(''), 3000);
-  };
-
-  const clearMessage = () => {
-    setInfoMessage('');
-  };
-
-  const deleteVehicle = (vehicle: Vehicle) => {
-    setVehicles(prev => prev.filter(v => v.id !== vehicle.id));
-  }
+  const { vehicles, loading, error, setVehicles } = useVehicles();
+  const [infoMessage, setInfoMessage] = useState('');
+  const { isSidebarOpen, openSidebar, closeSidebar } = useSidebar();
+  
+  const { searchableVehicles, handleSearch, handleFilters, handleSort, clearMessage } = 
+    useVehicleSearch(vehicles);
+  
+  const { handleCreate, handleEdit, handleDelete } = 
+    useVehicleActions(setVehicles, setInfoMessage);
 
   if (loading) {
     return (
@@ -137,19 +55,21 @@ export default function App() {
     <div className="app-container">
       <button 
         className={`btn btn-light sidebar-toggle ${isSidebarOpen ? 'd-none' : ''}`}
-        onClick={() => setIsSidebarOpen(true)}
+        onClick={openSidebar}
       >
         <i className='bi bi-list'></i>
       </button>
+      
       <Sidebar 
         isOpen={isSidebarOpen}
-        onClose={() => setIsSidebarOpen(false)}
+        onClose={closeSidebar}
         vehicles={searchableVehicles}
         onSearch={handleSearch}
         onFilter={handleFilters}
+        onSort={handleSort}
         onCreate={handleCreate}
         onEdit={handleEdit}
-        onDelete={deleteVehicle}
+        onDelete={handleDelete}
         infoMessage={infoMessage}
         onClearMessage={clearMessage}
       />

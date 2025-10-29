@@ -1,7 +1,8 @@
 import { Vehicle } from "../../types/vehicle";
-import CreateVehicle from "./SidebarTools/CreateVehicle";
-import EditVehicle from "./SidebarTools/EditVehicle";
+import CreateVehicle from "../Tools/CreateVehicle";
+import EditVehicle from "../Tools/EditVehicle";
 import SearchWithFilter from "./SearchWithFilters";
+import SortVehicles from "../Tools/SortVehicles";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -13,6 +14,7 @@ interface SidebarProps {
     minPrice: string,
     maxPrice: string
   }) => void;
+  onSort: (sortOption: string) => void;
   onCreate: (vehicle: Vehicle) => void;
   onEdit: (vehicle: Vehicle) => void;
   onDelete: (vehicle: Vehicle) => void;
@@ -20,18 +22,24 @@ interface SidebarProps {
   onClearMessage: () => void;
 }
 
-function Sidebar({ isOpen, onClose, vehicles, onSearch, onFilter, onCreate, onEdit, onDelete, infoMessage, onClearMessage }: SidebarProps) {
+function Sidebar({ isOpen, onClose, vehicles, onSearch, onFilter, onSort, onCreate, onEdit, onDelete, infoMessage, onClearMessage }: SidebarProps) {
   if (!isOpen) return null;
 
   return (
-      <div className="sidebar bg-light h-100 p-3" style={{ width: '350px' }}>
+      <div className="sidebar bg-light h-100 p-3">
         <div className="d-flex justify-content-between align-items-center mb-3">
           <i className="bi bi-x h3 sidebar-close-btn m-0" onClick={onClose}></i>
           <CreateVehicle onCreate={onCreate}/>
         </div>
+        
         <div className="mb-3">
           <SearchWithFilter vehicles={vehicles} onSearch={onSearch} onFilter={onFilter}/>
         </div>
+
+        <div className="mb-3">
+          <SortVehicles onSort={onSort} onFilter={onFilter}/>
+        </div>
+
         <div className="vehicle-list">
           {infoMessage && (
             <div className="alert alert-info alert-dismissible fade show">
